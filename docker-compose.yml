@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  web-app:
+    build: .
+    command: npm run start:dev
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: peb-db
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'peb-db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+
+volumes:
+  mysql:
