@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/users.module';
 import { CategorieEntity } from './categories/categorie.entity';
 import { MarkerEntity } from './markers/marker.entity';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MarkerEntity } from './markers/marker.entity';
     }),
     AuthModule,
     UserModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

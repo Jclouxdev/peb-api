@@ -1,14 +1,8 @@
 import { MarkerEntity } from '../markers/marker.entity';
-import {
-  BaseEntity,
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('categorie')
-export class CategorieEntity extends BaseEntity {
+export class CategorieEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
