@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { UserEntity } from './users/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/users.module';
+import { CategorieEntity } from './categories/categorie.entity';
+import { MarkerEntity } from './markers/marker.entity';
 
 @Module({
   imports: [
@@ -15,16 +17,11 @@ import { UserModule } from './users/users.module';
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.MYSQL_HOST,
-      // host: 'pebdb',
       port: parseInt(process.env.MYSQL_PORT),
-      // port: 3306,
       username: process.env.MYSQL_USER,
-      // username: 'user',
       password: process.env.MYSQL_PASSWORD,
-      // password: 'password',
       database: process.env.MYSQL_DATABASE,
-      // database: 'pebdb',
-      entities: [UserEntity],
+      entities: [UserEntity, CategorieEntity, MarkerEntity],
       synchronize: true,
     }),
     AuthModule,
