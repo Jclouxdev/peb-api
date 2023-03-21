@@ -1,17 +1,22 @@
 version: '3.8'
 services:
-  web-app:
+  app:
     build: .
     command: npm run start:dev
     volumes:
-      - .:/usr/src/app/
+      - ./src:/usr/src/app/src
+      - ./dist:/usr/src/app/dist
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./tsconfig.build.json:/usr/src/app/tsconfig.build.json
+    env_file:
+      - .env
     ports:
       - '8080:8080'
-    depends_on:
-      - mysql
+    networks:
+      api-dev:
 
   mysql:
-    container_name: peb-db
+    container_name: pebdb
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     ports:
@@ -19,10 +24,14 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: 'peb-db'
+      MYSQL_DATABASE: 'pebdb'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
+    networks:
+      api-dev:
 
 volumes:
   mysql:
+networks:
+  api-dev:

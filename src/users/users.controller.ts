@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Patch,
   Post,
   Request,
   UseGuards,
@@ -11,6 +12,8 @@ import { Get } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { AuthService } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { UpdateUserPasswordDto } from './dto/update-password.dto';
 
 @Controller('user')
 export class UserController {
@@ -36,5 +39,21 @@ export class UserController {
   @Get()
   getAll() {
     return this.userRepo.getAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/profile')
+  getMe(@Request() req) {
+    return this.userRepo.FindOneById(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/update-password')
+  updatePassword(
+    @Request() req,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    passwords: UpdateUserPasswordDto,
+  ) {
+    return this.userRepo.UpdatePassword(req.user.id, passwords);
   }
 }

@@ -1,8 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './user.entity';
+import { UpdateUserPasswordDto } from './dto/update-password.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -43,10 +51,38 @@ export class UserService {
   }
 
   async getAll(): Promise<UserEntity[]> {
+    console.log(process.env);
     return await this.userRepo.find();
   }
 
-  FindOneEmail(email: string): Promise<UserEntity> {
-    return this.userRepo.findOne({ where: { email: email } });
+  async FindOneByEmail(email: string): Promise<UserEntity> {
+    return await this.userRepo.findOne({ where: { email: email } });
+  }
+
+  async FindOneById(id: number): Promise<UserEntity> {
+    return await this.userRepo.findOne({ where: { id: id } });
+  }
+
+  async UpdatePassword(
+    id: number,
+    passwords: UpdateUserPasswordDto,
+  ): Promise<Partial<UserEntity>> {
+    const fetchUser = await this.FindOneById(id);
+    if (!fetchUser) {
+      throw new NotFoundException(`no user found matching id : ${id}`);
+    }
+    if (!(await bcrypt.compare(passwords.oldPassword, fetchUser.password))) {
+      throw new UnauthorizedException('invalid password');
+    }
+    if (passwords.newPassword !== passwords.confirmNewPassword) {
+      // Check if the two new passwords are Eq
+      throw new UnauthorizedException('passwords missmatches');
+    }
+
+    const userEntity = UserEntity.create();
+    userEntity.password = passwords.newPassword;
+
+    await UserEntity.update(id, userEntity);
+    return fetchUser;
   }
 }
