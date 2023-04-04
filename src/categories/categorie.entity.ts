@@ -1,9 +1,9 @@
 import { MarkerEntity } from '../markers/marker.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('categorie')
 export class CategorieEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column({ nullable: false, length: 50 })

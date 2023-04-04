@@ -51,7 +51,6 @@ export class UserService {
   }
 
   async getAll(): Promise<UserEntity[]> {
-    console.log(process.env);
     return await this.userRepo.find();
   }
 

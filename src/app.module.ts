@@ -9,6 +9,7 @@ import { UserModule } from './users/users.module';
 import { CategorieEntity } from './categories/categorie.entity';
 import { MarkerEntity } from './markers/marker.entity';
 import { CategoriesModule } from './categories/categories.module';
+import { MarkersModule } from './markers/markers.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CategoriesModule } from './categories/categories.module';
     AuthModule,
     UserModule,
     CategoriesModule,
+    MarkersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

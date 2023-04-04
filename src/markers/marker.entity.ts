@@ -18,10 +18,10 @@ export class MarkerEntity extends BaseEntity {
   @Column({ nullable: false, length: 50 })
   name: string;
 
-  @Column({ nullable: false })
+  @Column('decimal', { nullable: false, precision: 6, scale: 2 })
   lat: number;
 
-  @Column({ nullable: false })
+  @Column('decimal', { nullable: false, precision: 6, scale: 2 })
   lon: number;
 
   @Column({ nullable: true, length: 200 })
