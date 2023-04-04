@@ -1,10 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MarkerEntity } from './marker.entity';
 import { Repository } from 'typeorm';
 import { CreateMarkerDto } from './dto/create-marker.dto';
 import { UserEntity } from 'src/users/user.entity';
 import { CategorieEntity } from 'src/categories/categorie.entity';
+import { UpdateMarkerDto } from './dto/update-marker.dto';
 
 @Injectable()
 export class MarkersService {
@@ -69,4 +76,80 @@ export class MarkersService {
       },
     });
   }
+
+  async getById(id: string, userId?: number): Promise<MarkerEntity> {
+    const fetched = await this.markerRepo.findOne({
+      where: { id: id, users: { id: userId } },
+      relations: { users: true },
+    });
+    if (!fetched) {
+      throw new NotFoundException(
+        `no marker found matching id : ${id} for the current user`,
+      );
+    }
+    // if (!this.isOwned(userId, fetched)) {
+    //   throw new NotFoundException(
+    //     `no marker found matching id : ${id} in user ${userId} markers`,
+    //   );
+    // }
+    return fetched;
+  }
+
+  async deleteMarkerById(id: string, userId?: number): Promise<any> {
+    const fetched = await this.markerRepo.findOne({
+      where: { id: id, users: { id: userId } },
+      relations: { users: true },
+    });
+    if (!fetched) {
+      throw new NotFoundException(
+        `no marker found matching id : ${id} for the current user`,
+      );
+    }
+    // if (!this.isOwned(userId, fetched)) {
+    //   throw new NotFoundException(
+    //     `no marker found matching id : ${id} in user ${userId} markers`,
+    //   );
+    // }
+
+    await this.markerRepo.delete(id);
+    return HttpCode(200);
+  }
+
+  async patchById(
+    id: string,
+    markerUpdateDto: UpdateMarkerDto,
+    userId?: number,
+  ): Promise<Partial<MarkerEntity>> {
+    const fetched = await this.markerRepo.findOne({
+      where: { id: id, users: { id: userId } },
+      relations: { users: true },
+    });
+    if (!fetched) {
+      throw new NotFoundException(
+        `no marker found matching id : ${id} for the current user`,
+      );
+    }
+    // if (!this.isOwned(userId, fetched)) {
+    //   throw new NotFoundException(
+    //     `no marker found matching id : ${id} in user ${userId} markers`,
+    //   );
+    // }
+
+    const markerEntity = MarkerEntity.create();
+    markerEntity.name = markerUpdateDto.name;
+    markerEntity.description = markerUpdateDto.description;
+
+    await MarkerEntity.update(id, markerEntity);
+    return await this.getById(id);
+  }
+
+  // isOwned(userId: number, marker: MarkerEntity): boolean {
+  //   let state = false;
+  //   marker.users.forEach((element) => {
+  //     if (element.id == userId) {
+  //       state = true;
+  //     }
+  //   });
+  //   return state;
+  // }
 }

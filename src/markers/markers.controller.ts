@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  Patch,
   Post,
   Request,
   UseGuards,
@@ -10,6 +13,7 @@ import {
 import { MarkersService } from './markers.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 import { CreateMarkerDto } from './dto/create-marker.dto';
+import { UpdateMarkerDto } from './dto/update-marker.dto';
 
 @Controller('markers')
 export class MarkersController {
@@ -29,5 +33,27 @@ export class MarkersController {
     markerDto: CreateMarkerDto,
   ) {
     return this.markerRepo.createMarkerWithUserId(markerDto, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  getMarkerById(@Param('id') id: string, @Request() req) {
+    return this.markerRepo.getById(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  patchById(
+    @Param('id') id: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    markderUpdateDto: UpdateMarkerDto,
+  ) {
+    return this.markerRepo.patchById(id, markderUpdateDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  removeMarker(@Param('id') id: string) {
+    return this.markerRepo.deleteMarkerById(id);
   }
 }
