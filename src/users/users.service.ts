@@ -1,4 +1,5 @@
 import {
+  HttpCode,
   HttpException,
   HttpStatus,
   Injectable,
@@ -83,5 +84,10 @@ export class UserService {
 
     await UserEntity.update(id, userEntity);
     return fetchUser;
+  }
+
+  async DeleteAccount(id: number): Promise<MethodDecorator> {
+    await this.userRepo.delete(id);
+    return HttpCode(200);
   }
 }

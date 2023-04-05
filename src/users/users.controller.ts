@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Patch,
   Post,
   Request,
@@ -55,5 +56,11 @@ export class UserController {
     passwords: UpdateUserPasswordDto,
   ) {
     return this.userRepo.UpdatePassword(req.user.id, passwords);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/profile')
+  deleteAccount(@Request() req) {
+    return this.userRepo.DeleteAccount(req.user.id);
   }
 }
