@@ -77,39 +77,29 @@ export class MarkersService {
     });
   }
 
-  async getById(id: string, userId?: number): Promise<MarkerEntity> {
+  async getById(id: string, userId?: number): Promise<Partial<MarkerEntity>> {
     const fetched = await this.markerRepo.findOne({
       where: { id: id, users: { id: userId } },
-      relations: { users: true },
+      // relations: { users: true },
     });
     if (!fetched) {
       throw new NotFoundException(
         `no marker found matching id : ${id} for the current user`,
       );
     }
-    // if (!this.isOwned(userId, fetched)) {
-    //   throw new NotFoundException(
-    //     `no marker found matching id : ${id} in user ${userId} markers`,
-    //   );
-    // }
     return fetched;
   }
 
   async deleteMarkerById(id: string, userId?: number): Promise<any> {
     const fetched = await this.markerRepo.findOne({
       where: { id: id, users: { id: userId } },
-      relations: { users: true },
+      // relations: { users: true },
     });
     if (!fetched) {
       throw new NotFoundException(
         `no marker found matching id : ${id} for the current user`,
       );
     }
-    // if (!this.isOwned(userId, fetched)) {
-    //   throw new NotFoundException(
-    //     `no marker found matching id : ${id} in user ${userId} markers`,
-    //   );
-    // }
 
     await this.markerRepo.delete(id);
     return HttpCode(200);
@@ -122,18 +112,13 @@ export class MarkersService {
   ): Promise<Partial<MarkerEntity>> {
     const fetched = await this.markerRepo.findOne({
       where: { id: id, users: { id: userId } },
-      relations: { users: true },
+      // relations: { users: true },
     });
     if (!fetched) {
       throw new NotFoundException(
         `no marker found matching id : ${id} for the current user`,
       );
     }
-    // if (!this.isOwned(userId, fetched)) {
-    //   throw new NotFoundException(
-    //     `no marker found matching id : ${id} in user ${userId} markers`,
-    //   );
-    // }
 
     const markerEntity = MarkerEntity.create();
     markerEntity.name = markerUpdateDto.name;
