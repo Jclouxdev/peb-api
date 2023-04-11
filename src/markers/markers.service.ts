@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MarkerEntity } from './marker.entity';
@@ -12,6 +13,7 @@ import { CreateMarkerDto } from './dto/create-marker.dto';
 import { UserEntity } from 'src/users/user.entity';
 import { CategorieEntity } from 'src/categories/categorie.entity';
 import { UpdateMarkerDto } from './dto/update-marker.dto';
+import { ShareMarkerDto } from './dto/share-marker-dto';
 
 @Injectable()
 export class MarkersService {
@@ -126,6 +128,40 @@ export class MarkersService {
 
     await MarkerEntity.update(id, markerEntity);
     return await this.getById(id);
+  }
+
+  async shareMarkerToUsername(
+    markerId: string,
+    shareMarkerDto: ShareMarkerDto,
+    userId: number,
+  ): Promise<any> {
+    const markerFetched = await this.markerRepo.findOne({
+      where: { id: markerId, users: { id: userId } },
+      relations: { users: true },
+    });
+    if (!markerFetched) {
+      throw new NotFoundException(
+        `no marker found matching id : ${markerId} for the current user`,
+      );
+    }
+
+    const destUser = await this.userRepo.findOne({
+      where: { username: shareMarkerDto.username },
+    });
+    if (destUser.id == userId) {
+      throw new UnauthorizedException(
+        `you can't share a marker with your own account`,
+      );
+    }
+    if (!destUser) {
+      throw new NotFoundException(`no user found with this username`);
+    }
+
+    // Add user and already existing users
+    markerFetched.users = [destUser, ...markerFetched.users];
+    await this.markerRepo.save(markerFetched);
+
+    return HttpCode(200);
   }
 
   // isOwned(userId: number, marker: MarkerEntity): boolean {

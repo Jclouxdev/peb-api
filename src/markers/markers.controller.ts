@@ -14,6 +14,7 @@ import { MarkersService } from './markers.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 import { CreateMarkerDto } from './dto/create-marker.dto';
 import { UpdateMarkerDto } from './dto/update-marker.dto';
+import { ShareMarkerDto } from './dto/share-marker-dto';
 
 @Controller('markers')
 export class MarkersController {
@@ -55,5 +56,20 @@ export class MarkersController {
   @Delete(':id')
   removeMarker(@Param('id') id: string) {
     return this.markerRepo.deleteMarkerById(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/share')
+  shareMarker(
+    @Request() req,
+    @Param('id') markerId: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    shareMarkerDto: ShareMarkerDto,
+  ) {
+    return this.markerRepo.shareMarkerToUsername(
+      markerId,
+      shareMarkerDto,
+      req.user.id,
+    );
   }
 }
