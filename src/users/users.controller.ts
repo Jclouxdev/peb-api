@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Param,
   Patch,
   Post,
   Request,
@@ -15,6 +16,8 @@ import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 import { UpdateUserPasswordDto } from './dto/update-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+// import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
@@ -42,6 +45,11 @@ export class UserController {
     return this.userRepo.getAll();
   }
 
+  @Get('/exist/:username')
+  DoesUserExist(@Param('username') username: string) {
+    return this.userRepo.DoesUserExist(username);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   getMe(@Request() req) {
@@ -56,6 +64,18 @@ export class UserController {
     passwords: UpdateUserPasswordDto,
   ) {
     return this.userRepo.UpdatePassword(req.user.id, passwords);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  // @UseInterceptors(FileInterceptor('file'))
+  @Patch('/update')
+  updateProfile(
+    @Request() req,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    body: UpdateUserDto,
+    // @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.userRepo.UpdateProfile(req.user.id, body);
   }
 
   @UseGuards(JwtAuthGuard)

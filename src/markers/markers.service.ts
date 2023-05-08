@@ -70,6 +70,7 @@ export class MarkersService {
     return await this.markerRepo.find({
       relations: {
         users: true,
+        categorie: true,
       },
       where: {
         users: {

@@ -10,11 +10,19 @@ import { CategorieEntity } from './categories/categorie.entity';
 import { MarkerEntity } from './markers/marker.entity';
 import { CategoriesModule } from './categories/categories.module';
 import { MarkersModule } from './markers/markers.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '/avatars/'),
+      serveStaticOptions: {
+        index: false,
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',

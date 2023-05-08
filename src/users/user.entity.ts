@@ -27,6 +27,9 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'boolean', default: false })
   conscentCgu: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  avatarUrl: string;
+
   @CreateDateColumn()
   creationDate: Date;
 

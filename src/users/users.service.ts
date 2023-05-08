@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './user.entity';
 import { UpdateUserPasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -47,6 +48,17 @@ export class UserService {
     userEntity.username = username;
     userEntity.password = password;
     userEntity.conscentCgu = conscentCgu;
+    const random = Math.random() * 10;
+    if (random >= 0 && random < 3) {
+      userEntity.avatarUrl = '/avatars/dog1.png';
+    } else if (random > 3 && random <= 6) {
+      userEntity.avatarUrl = '/avatars/dog2.png';
+    } else if (random > 6 && random <= 9) {
+      userEntity.avatarUrl = '/avatars/dog3.png';
+    } else {
+      userEntity.avatarUrl = '/avatars/dog4.png';
+    }
+
     await this.userRepo.save(userEntity);
     return userEntity;
   }
@@ -61,6 +73,11 @@ export class UserService {
 
   async FindOneById(id: number): Promise<UserEntity> {
     return await this.userRepo.findOne({ where: { id: id } });
+  }
+
+  async DoesUserExist(username: string): Promise<boolean> {
+    const user = await this.userRepo.findOne({ where: { username: username } });
+    return user !== null ? true : false;
   }
 
   async UpdatePassword(
@@ -84,6 +101,46 @@ export class UserService {
 
     await UserEntity.update(id, userEntity);
     return fetchUser;
+  }
+
+  async UpdateProfile(
+    userId: number,
+    body: UpdateUserDto,
+  ): Promise<Partial<UserEntity>> {
+    const fetchUser = await this.FindOneById(userId);
+    if (!fetchUser) {
+      throw new NotFoundException(`no user found matching id : ${userId}`);
+    }
+    if (!(await bcrypt.compare(body.currentPassword, fetchUser.password))) {
+      throw new UnauthorizedException('invalid password');
+    }
+    if (body.newPassword !== body.confirmNewPassword) {
+      // Check if the two new passwords are Eq
+      throw new UnauthorizedException('passwords missmatches');
+    }
+
+    const userEntity = UserEntity.create();
+    if (body.email) userEntity.email = body.email;
+    if (body.newPassword) userEntity.password = body.newPassword;
+    // if (file) {
+    //   const fileUrl = file.buffer.toString();
+    //   console.log(fileUrl);
+    //   userEntity.avatarUrl = fileUrl;
+    // }
+    const random = Math.random() * 10;
+    if (random >= 0 && random < 3) {
+      userEntity.avatarUrl = '/avatars/dog1.png';
+    } else if (random > 3 && random <= 6) {
+      userEntity.avatarUrl = '/avatars/dog2.png';
+    } else if (random > 6 && random <= 9) {
+      userEntity.avatarUrl = '/avatars/dog3.png';
+    } else {
+      userEntity.avatarUrl = '/avatars/dog4.png';
+    }
+
+    await UserEntity.update(userId, userEntity);
+
+    return userEntity;
   }
 
   async DeleteAccount(id: number): Promise<MethodDecorator> {
