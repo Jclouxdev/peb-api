@@ -55,7 +55,7 @@ export class MarkersService {
     // get categories
     if (createMarker.categorieId == null) {
       throw new HttpException(
-        'Id cant be null',
+        'CategoryId cant be null',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
