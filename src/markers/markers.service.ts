@@ -14,6 +14,7 @@ import { UserEntity } from 'src/users/user.entity';
 import { CategorieEntity } from 'src/categories/categorie.entity';
 import { UpdateMarkerDto } from './dto/update-marker.dto';
 import { ShareMarkerDto } from './dto/share-marker-dto';
+import { unescape } from 'querystring';
 
 @Injectable()
 export class MarkersService {
@@ -52,6 +53,12 @@ export class MarkersService {
     markerEntity.description = description;
 
     // get categories
+    if (createMarker.categorieId == null) {
+      throw new HttpException(
+        'Id cant be null',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     const fetchCategory = await this.categoryRepo.findOneBy({
       id: categorieId,
     });
