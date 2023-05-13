@@ -143,7 +143,7 @@ export class MarkersService {
     markerId: string,
     shareMarkerDto: ShareMarkerDto,
     userId: number,
-  ): Promise<any> {
+  ): Promise<MarkerEntity> {
     const markerFetched = await this.markerRepo.findOne({
       where: { id: markerId, users: { id: userId } },
       relations: { users: true },
@@ -157,20 +157,20 @@ export class MarkersService {
     const destUser = await this.userRepo.findOne({
       where: { username: shareMarkerDto.username },
     });
+    if (!destUser) {
+      throw new NotFoundException(`no user found with this username`);
+    }
     if (destUser.id == userId) {
       throw new UnauthorizedException(
         `you can't share a marker with your own account`,
       );
-    }
-    if (!destUser) {
-      throw new NotFoundException(`no user found with this username`);
     }
 
     // Add user and already existing users
     markerFetched.users = [destUser, ...markerFetched.users];
     await this.markerRepo.save(markerFetched);
 
-    return HttpCode(200);
+    return markerFetched;
   }
 
   // async seed(seedPassword): Promise<Partial<MarkerEntity[]>> {
