@@ -14,7 +14,6 @@ import { UserEntity } from 'src/users/user.entity';
 import { CategorieEntity } from 'src/categories/categorie.entity';
 import { UpdateMarkerDto } from './dto/update-marker.dto';
 import { ShareMarkerDto } from './dto/share-marker-dto';
-import { unescape } from 'querystring';
 
 @Injectable()
 export class MarkersService {
@@ -23,13 +22,13 @@ export class MarkersService {
     private readonly markerRepo: Repository<MarkerEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
-    @InjectRepository(UserEntity)
+    @InjectRepository(CategorieEntity)
     private readonly categoryRepo: Repository<CategorieEntity>,
   ) {}
 
   async createMarkerWithUserId(
     createMarker: CreateMarkerDto,
-    id: number,
+    userId: number,
   ): Promise<MarkerEntity> {
     const markerEntity = MarkerEntity.create();
     const { name, lat, lon, description, categorieId } = createMarker;
@@ -39,7 +38,6 @@ export class MarkersService {
       lat: parseFloat(lat.toFixed(2)),
       lon: parseFloat(lon.toFixed(2)),
     });
-    console.log(markerInDb);
     if (markerInDb) {
       throw new HttpException(
         'Marker already exist with the same exact coords',
@@ -53,7 +51,10 @@ export class MarkersService {
     markerEntity.description = description;
 
     // get categories
-    if (createMarker.categorieId == null) {
+    if (
+      createMarker.categorieId == null ||
+      createMarker.categorieId == undefined
+    ) {
       throw new HttpException(
         'CategoryId cant be null',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -65,7 +66,7 @@ export class MarkersService {
     markerEntity.categorie = fetchCategory;
 
     // get user with payload id
-    const fetchUser = await this.userRepo.findOneBy({ id: id });
+    const fetchUser = await this.userRepo.findOneBy({ id: userId });
     markerEntity.users = [fetchUser];
 
     // save and return
@@ -171,6 +172,23 @@ export class MarkersService {
 
     return HttpCode(200);
   }
+
+  // async seed(seedPassword): Promise<Partial<MarkerEntity[]>> {
+  //   const data = [];
+  //   if (seedPassword.password !== process.env.SEEDPASS) {
+  //     throw new UnauthorizedException('invalid password');
+  //   }
+
+  //   // First marker
+  //   if (!(await this.markerRepo.findOneBy({ name: 'Restaurants' }))) {
+  //     const restaurant = new CategorieEntity();
+  //     restaurant.id = 1;
+  //     restaurant.name = 'Restaurants';
+  //     await this.markerRepo.save(restaurant);
+  //     data.push(restaurant);
+  //   }
+  //   return data;
+  // }
 
   // isOwned(userId: number, marker: MarkerEntity): boolean {
   //   let state = false;
