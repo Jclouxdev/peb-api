@@ -101,19 +101,28 @@ export class MarkersService {
     return fetched;
   }
 
-  async deleteMarkerById(id: string, userId?: number): Promise<any> {
+  async deleteMarkerById(id: string, userId: number): Promise<any> {
     const fetched = await this.markerRepo.findOne({
-      where: { id: id, users: { id: userId } },
-      // relations: { users: true },
+      relations: { users: true },
+      // where: { id: id, users: { id: userId } }
+      where: { id: id },
     });
     if (!fetched) {
       throw new NotFoundException(
         `no marker found matching id : ${id} for the current user`,
       );
     }
-
-    await this.markerRepo.delete(id);
-    return HttpCode(200);
+    if (fetched.users.length > 1) {
+      // Retirer l'utilisateur du tableau d'user du Marker
+      fetched.users = fetched.users.filter((user) => {
+        return user.id !== userId;
+      });
+      await this.markerRepo.save(fetched);
+      return fetched;
+    } else {
+      await this.markerRepo.delete(id);
+      return HttpCode(200);
+    }
   }
 
   async patchById(

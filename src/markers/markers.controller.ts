@@ -54,8 +54,8 @@ export class MarkersController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  removeMarker(@Param('id') id: string) {
-    return this.markerRepo.deleteMarkerById(id);
+  removeMarker(@Param('id') id: string, @Request() req) {
+    return this.markerRepo.deleteMarkerById(id, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)

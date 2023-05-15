@@ -27,7 +27,7 @@ export class MarkerEntity extends BaseEntity {
   @Column({ nullable: true, length: 200 })
   description: string;
 
-  @ManyToMany(() => UserEntity)
+  @ManyToMany(() => UserEntity, { cascade: true })
   @JoinTable()
   users: UserEntity[];
 
